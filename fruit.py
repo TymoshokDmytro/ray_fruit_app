@@ -89,7 +89,7 @@ class FakeService:
     #     self.fake = Faker()
 
     def __call__(self, http_request: Request) -> str:
-        return self.fake.name()
+        return fake.name()
 
 
 async def json_resolver(request: Request) -> List:
