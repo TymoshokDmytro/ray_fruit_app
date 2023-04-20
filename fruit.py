@@ -82,21 +82,23 @@ class PearStand:
 
 
 @serve.deployment
-class FakeService:
-    # def __init__(self):
-    #     # This default price is overwritten by the one specified in the
-    #     # user_config through the reconfigure() method.
-    #     self.fake = Faker()
-
+class FakeNameService:
     def __call__(self, http_request: Request) -> str:
         return fake.name()
+
+
+@serve.deployment
+class FakeAddressService:
+    def __call__(self, http_request: Request) -> str:
+        return fake.address()
 
 
 async def json_resolver(request: Request) -> List:
     return await request.json()
 
 
-fake_service = FakeService.bind()
+fake_name = FakeNameService.bind()
+fake_address = FakeAddressService.bind()
 
 # with InputNode() as query:
 #     fake_stand = FakeService()
