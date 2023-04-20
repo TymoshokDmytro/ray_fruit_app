@@ -1,22 +1,20 @@
-import ray
-from ray import serve
-from ray.serve.drivers import DAGDriver
-from ray.serve.deployment_graph import InputNode
-
 # These imports are used only for type hints:
 from typing import Dict, List
+
+from ray import serve
+from ray.serve.deployment_graph import InputNode
+from ray.serve.drivers import DAGDriver
+from ray.serve.handle import RayServeDeploymentHandle
 from starlette.requests import Request
-from ray.serve.deployment_graph import ClassNode
 
 
 @serve.deployment(num_replicas=2)
 class FruitMarket:
-
     def __init__(
-            self,
-            mango_stand: ClassNode,
-            orange_stand: ClassNode,
-            pear_stand: ClassNode,
+        self,
+        mango_stand: RayServeDeploymentHandle,
+        orange_stand: RayServeDeploymentHandle,
+        pear_stand: RayServeDeploymentHandle,
     ):
         self.directory = {
             "MANGO": mango_stand,
@@ -24,16 +22,17 @@ class FruitMarket:
             "PEAR": pear_stand,
         }
 
-    def check_price(self, fruit: str, amount: float) -> float:
+    async def check_price(self, fruit: str, amount: float) -> float:
         if fruit not in self.directory:
             return -1
         else:
             fruit_stand = self.directory[fruit]
-            return ray.get(fruit_stand.check_price.remote(amount))
+            return await (await fruit_stand.check_price.remote(amount))
 
 
 @serve.deployment(user_config={"price": 3})
 class MangoStand:
+
     DEFAULT_PRICE = 1
 
     def __init__(self):
@@ -50,6 +49,7 @@ class MangoStand:
 
 @serve.deployment(user_config={"price": 2})
 class OrangeStand:
+
     DEFAULT_PRICE = 0.5
 
     def __init__(self):
@@ -66,6 +66,7 @@ class OrangeStand:
 
 @serve.deployment(user_config={"price": 4})
 class PearStand:
+
     DEFAULT_PRICE = 0.75
 
     def __init__(self):
