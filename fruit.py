@@ -6,15 +6,18 @@ from ray.serve.deployment_graph import InputNode
 from ray.serve.drivers import DAGDriver
 from ray.serve.handle import RayServeDeploymentHandle
 from starlette.requests import Request
+from faker import Faker
+
+fake = Faker()
 
 
 @serve.deployment(num_replicas=2)
 class FruitMarket:
     def __init__(
-        self,
-        mango_stand: RayServeDeploymentHandle,
-        orange_stand: RayServeDeploymentHandle,
-        pear_stand: RayServeDeploymentHandle,
+            self,
+            mango_stand: RayServeDeploymentHandle,
+            orange_stand: RayServeDeploymentHandle,
+            pear_stand: RayServeDeploymentHandle,
     ):
         self.directory = {
             "MANGO": mango_stand,
@@ -32,7 +35,6 @@ class FruitMarket:
 
 @serve.deployment(user_config={"price": 3})
 class MangoStand:
-
     DEFAULT_PRICE = 1
 
     def __init__(self):
@@ -49,7 +51,6 @@ class MangoStand:
 
 @serve.deployment(user_config={"price": 2})
 class OrangeStand:
-
     DEFAULT_PRICE = 0.5
 
     def __init__(self):
@@ -66,7 +67,6 @@ class OrangeStand:
 
 @serve.deployment(user_config={"price": 4})
 class PearStand:
-
     DEFAULT_PRICE = 0.75
 
     def __init__(self):
@@ -81,19 +81,33 @@ class PearStand:
         return self.price * amount
 
 
+@serve.deployment
+class FakeService:
+    # def __init__(self):
+    #     # This default price is overwritten by the one specified in the
+    #     # user_config through the reconfigure() method.
+    #     self.fake = Faker()
+
+    def __call__(self, http_request: Request) -> str:
+        return self.fake.name()
+
+
 async def json_resolver(request: Request) -> List:
     return await request.json()
 
 
-with InputNode() as query:
-    fruit, amount = query[0], query[1]
+fake_service = FakeService.bind()
 
-    mango_stand = MangoStand.bind()
-    orange_stand = OrangeStand.bind()
-    pear_stand = PearStand.bind()
-
-    fruit_market = FruitMarket.bind(mango_stand, orange_stand, pear_stand)
-
-    net_price = fruit_market.check_price.bind(fruit, amount)
-
-deployment_graph = DAGDriver.bind(net_price, http_adapter=json_resolver)
+# with InputNode() as query:
+#     fake_stand = FakeService()
+#     fruit, amount = query[0], query[1]
+#
+#     mango_stand = MangoStand.bind()
+#     orange_stand = OrangeStand.bind()
+#     pear_stand = PearStand.bind()
+#
+#     fruit_market = FruitMarket.bind(mango_stand, orange_stand, pear_stand)
+#
+#     net_price = fruit_market.check_price.bind(fruit, amount)
+#
+# deployment_graph = DAGDriver.bind(net_price, http_adapter=json_resolver)
