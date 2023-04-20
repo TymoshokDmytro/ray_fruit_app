@@ -7,8 +7,7 @@ from ray.serve.drivers import DAGDriver
 from ray.serve.handle import RayServeDeploymentHandle
 from starlette.requests import Request
 from faker import Faker
-
-fake = Faker()
+from fastapi import FastAPI
 
 
 @serve.deployment(num_replicas=2)
@@ -81,15 +80,20 @@ class PearStand:
         return self.price * amount
 
 
-@serve.deployment
-class FakeNameService:
-    def __call__(self, http_request: Request) -> str:
+fake = Faker()
+app = FastAPI()
+
+
+@serve.deployment(route_prefix="/")
+@serve.ingress(app)
+class FakeService:
+
+    @app.get("/name")
+    def __call__(self) -> str:
         return fake.name()
 
-
-@serve.deployment
-class FakeAddressService:
-    def __call__(self, http_request: Request) -> str:
+    @app.get("/address")
+    def __call__(self) -> str:
         return fake.address()
 
 
@@ -97,8 +101,7 @@ async def json_resolver(request: Request) -> List:
     return await request.json()
 
 
-fake_name = FakeNameService.bind()
-fake_address = FakeAddressService.bind()
+fake_service = FakeService.bind()
 
 # with InputNode() as query:
 #     fake_stand = FakeService()
