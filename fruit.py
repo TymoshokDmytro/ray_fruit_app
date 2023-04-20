@@ -89,11 +89,11 @@ app = FastAPI()
 class FakeService:
 
     @app.get("/name")
-    def __call__(self) -> str:
+    def name(self) -> str:
         return fake.name()
 
     @app.get("/address")
-    def __call__(self) -> str:
+    def address(self) -> str:
         return fake.address()
 
 
