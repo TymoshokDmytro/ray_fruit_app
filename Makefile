@@ -1,4 +1,4 @@
 .PHONY: zip-artifact
 zip-artifact:
-	rm -f artifact/artifact.zip
-	zip artifact/artifact.zip artifact/fruit.py
+	rm -f artifact.zip
+	zip artifact.zip fruit.py
