@@ -12,7 +12,8 @@ spec:
   serveConfig:
     importPath: fruit.deployment_graph
     runtimeEnv: |
-      working_dir: "https://github.com/ray-project/test_dag/archive/41d09119cbdf8450599f993f51318e9e27c59098.zip"
+      # working_dir: "https://github.com/ray-project/test_dag/archive/41d09119cbdf8450599f993f51318e9e27c59098.zip"
+      working_dir: "https://github.com/TymoshokDmytro/ray_fruit_app/blob/f6943ce40a15d014590b6d5c6ae120982fd71fdd/artifact/artifact.zip"
     deployments:
       - name: MangoStand
         numReplicas: 1
