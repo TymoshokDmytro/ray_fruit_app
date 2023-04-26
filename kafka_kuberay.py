@@ -1,24 +1,11 @@
 import ray
 from ray import serve
 
-ray.init(runtime_env={"pip": ["requirements.txt"]})
-serve.start(http_options={"host": "0.0.0.0", "port": 8000})
 
-
-@serve.deployment(num_replicas=1,
-                  ray_actor_options={
-                      "num_cpus": 0.2,
-                      "num_gpus": 0,
-                      "runtime_env": {
-                          "env_vars": {
-                              "OUTPUT_EVENTS_TOPIC": 'output_events',
-                              "BOOTSTRAP_SERVER": "localhost:9093"
-                          }
-                      }
-                  },
-                  health_check_period_s=5,
-                  health_check_timeout_s=1
-                  )
+@serve.deployment(
+    health_check_period_s=5,
+    health_check_timeout_s=1
+)
 class AsyncKafkaProducer:
     def __init__(self):
         from aiokafka import AIOKafkaProducer
@@ -63,20 +50,10 @@ class AsyncKafkaProducer:
             raise RuntimeError("Kafka Producer is broken.")
 
 
-@serve.deployment(num_replicas=1,
-                  ray_actor_options={
-                      "num_cpus": 0.2,
-                      "num_gpus": 0,
-                      "runtime_env": {
-                          "env_vars": {
-                              "INPUT_EVENTS_TOPIC": 'input_events',
-                              "BOOTSTRAP_SERVER": "localhost:9093"
-                          }
-                      }
-                  },
-                  health_check_period_s=5,
-                  health_check_timeout_s=1
-                  )
+@serve.deployment(
+    health_check_period_s=5,
+    health_check_timeout_s=1
+)
 class AsyncKafkaConsumer:
     def __init__(self, producer):
         from faker import Faker

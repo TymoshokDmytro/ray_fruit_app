@@ -10,18 +10,27 @@ spec:
   serviceUnhealthySecondThreshold: 300 # Config for the health check threshold for service. Default value is 60.
   deploymentUnhealthySecondThreshold: 300 # Config for the health check threshold for deployments. Default value is 60.
   serveConfig:
-    importPath: fruit.fake_service
+    importPath: kafka_kuberay.kafka_consumer
     runtimeEnv: |
       # https://docs.ray.io/en/latest/ray-core/handling-dependencies.html#option-2-manually-create-url-slower-to-implement-but-recommended-for-production-environments
       # working_dir: "https://github.com/ray-project/test_dag/archive/41d09119cbdf8450599f993f51318e9e27c59098.zip"
       # working_dir: "https://raw.githubusercontent.com/TymoshokDmytro/ray_fruit_app/main/artifact.zip"
       working_dir: "https://github.com/TymoshokDmytro/ray_fruit_app/archive/HEAD.zip"      
-      pip: ["requirements.txt"]
+      pip: ["faker==18.4.0", "python-dotenv==0.21.1", "protobuf==3.20.*", "aiokafka==0.8.0"]
+      env_vars: {
+            "BOOTSTRAP_SERVER": "kafka-0.kafka-headless.kafka.svc.cluster.local:9092",
+            "INPUT_EVENTS_TOPIC": 'input_events',
+            "OUTPUT_EVENTS_TOPIC": 'output_events',
+        }
     deployments:
-      - name: FakeService
+      - name: AsyncKafkaProducer
         numReplicas: 1
         rayActorOptions:
-          numCpus: 0.1
+          numCpus: 0.2
+      - name: AsyncKafkaConsumer
+        numReplicas: 1
+        rayActorOptions:
+          numCpus: 0.2
   rayClusterConfig:
     rayVersion: '2.3.0' # should match the Ray version in the image of the containers
     ######################headGroupSpecs#################################
