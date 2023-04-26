@@ -10,7 +10,7 @@ spec:
   serviceUnhealthySecondThreshold: 300 # Config for the health check threshold for service. Default value is 60.
   deploymentUnhealthySecondThreshold: 300 # Config for the health check threshold for deployments. Default value is 60.
   serveConfig:
-    importPath: kafka_kuberay.kafka_consumer
+    importPath: kafka_kuberay.test_kafka_producer
     runtimeEnv: |
       # https://docs.ray.io/en/latest/ray-core/handling-dependencies.html#option-2-manually-create-url-slower-to-implement-but-recommended-for-production-environments
       # working_dir: "https://github.com/ray-project/test_dag/archive/41d09119cbdf8450599f993f51318e9e27c59098.zip"
@@ -28,6 +28,10 @@ spec:
         rayActorOptions:
           numCpus: 0.2
       - name: AsyncKafkaConsumer
+        numReplicas: 1
+        rayActorOptions:
+          numCpus: 0.2
+      - name: CustomKafkaProducer
         numReplicas: 1
         rayActorOptions:
           numCpus: 0.2

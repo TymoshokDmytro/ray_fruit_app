@@ -38,7 +38,7 @@ class CustomKafkaProducer:
                 record_metadata = future.get(timeout=10)
                 print("Event sent: %s", event)
                 print("Topic: %s, partition: %s, offset: %s", record_metadata.topic, record_metadata.partition, record_metadata.offset)
-                return f"{events_num} events generated"
+            return f"{events_num} events generated"
         except KafkaError as e:
             print("Error sending event: %s", e)
 
