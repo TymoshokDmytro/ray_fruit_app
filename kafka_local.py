@@ -3,13 +3,30 @@ import random
 
 import ray
 from faker import Faker
+from fastapi import FastAPI
 from ray import serve
 from starlette.requests import Request
 
 fake = Faker()
+app = FastAPI()
+
+ray.init(runtime_env={"env_vars": {
+    "OUTPUT_EVENTS_TOPIC": 'output_events',
+    "INPUT_EVENTS_TOPIC": "input_events",
+    "BOOTSTRAP_SERVER": "localhost:9093"
+}})
 
 
-@serve.deployment
+# serve.start(http_options={"host": "0.0.0.0", "port": 8000})
+
+
+@serve.deployment(
+    num_replicas=1,
+    ray_actor_options={"num_cpus": 0.2,
+                       "num_gpus": 0},
+    health_check_period_s=5,
+    health_check_timeout_s=1
+)
 class CustomKafkaProducer:
     def __init__(self, consumer_bind=None):
         from kafka import KafkaProducer
@@ -73,7 +90,11 @@ class CustomKafkaProducer:
             raise RuntimeError("Kafka Producer is broken.")
 
 
-@serve.deployment
+@serve.deployment(num_replicas=1,
+                  ray_actor_options={"num_cpus": 0.2,
+                                     "num_gpus": 0},
+                  health_check_period_s=5,
+                  health_check_timeout_s=1)
 class AsyncKafkaProducer:
     def __init__(self):
         from aiokafka import AIOKafkaProducer
@@ -117,7 +138,11 @@ class AsyncKafkaProducer:
             raise RuntimeError("Kafka Producer is broken.")
 
 
-@serve.deployment
+@serve.deployment(num_replicas=1,
+                  ray_actor_options={"num_cpus": 0.2,
+                                     "num_gpus": 0},
+                  health_check_period_s=5,
+                  health_check_timeout_s=1)
 class AsyncKafkaConsumer:
     def __init__(self, producer):
         from faker import Faker
@@ -174,3 +199,13 @@ class AsyncKafkaConsumer:
 kafka_producer = AsyncKafkaProducer.bind()
 kafka_consumer = AsyncKafkaConsumer.bind(kafka_producer)
 test_kafka_producer = CustomKafkaProducer.bind(kafka_consumer)
+
+serve.run(test_kafka_producer)
+
+# try:
+#     while True:
+#         time.sleep(10)
+# except KeyboardInterrupt:
+#     print('KeyboardInterrupt')
+#
+# print("Done!")

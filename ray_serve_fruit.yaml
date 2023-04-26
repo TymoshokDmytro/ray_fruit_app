@@ -19,8 +19,8 @@ spec:
       pip: ["faker==18.4.0", "python-dotenv==0.21.1", "protobuf==3.20.*", "aiokafka==0.8.0"]
       env_vars: {
             "BOOTSTRAP_SERVER": "kafka-0.kafka-headless.kafka.svc.cluster.local:9092",
-            "INPUT_EVENTS_TOPIC": 'input_events',
-            "OUTPUT_EVENTS_TOPIC": 'output_events',
+            "INPUT_EVENTS_TOPIC": "input_events",
+            "OUTPUT_EVENTS_TOPIC": "output_events",
         }
     deployments:
       - name: AsyncKafkaProducer

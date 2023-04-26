@@ -81,7 +81,7 @@ if __name__ == "__main__":
     setup_logging()
     # pprint(clients_info)
     # Replace with your Kafka broker addresses and desired API version
-    bootstrap_servers = os.getenv("BOOTSTRAP_SERVER", 'localhost:9093')
+    bootstrap_servers = os.getenv("BOOTSTRAP_SERVER", 'localhost:9092')
     # Create an instance of CustomKafkaProducer
     kafka_producer = CustomKafkaProducer(bootstrap_servers)
 
